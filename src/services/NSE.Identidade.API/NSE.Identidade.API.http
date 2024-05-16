@@ -1,6 +1,16 @@
-@NSE.Identidade.API_HostAddress = http://localhost:5029
+@NSE.Identidade.API_HostAddress = https://localhost:7061
 
 GET {{NSE.Identidade.API_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+POST {{NSE.Identidade.API_HostAddress}}/api/identidade/nova-conta
+
+{
+  "email": "sid@test.com",
+  "senha": "123456",
+  "senhaConfirmacao": "123456"
+}
 
 ###
