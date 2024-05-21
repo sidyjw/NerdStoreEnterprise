@@ -6,11 +6,12 @@ Accept: application/json
 ###
 
 POST {{NSE.Identidade.API_HostAddress}}/api/identidade/nova-conta
+Content-Type: application/json
 
 {
   "email": "sid@test.com",
-  "senha": "123456",
-  "senhaConfirmacao": "123456"
+  "senha": "Teste@123",
+  "senhaconfirmacao": "Teste@123"
 }
 
 ###
