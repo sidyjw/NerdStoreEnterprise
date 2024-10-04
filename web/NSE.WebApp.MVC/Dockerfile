@@ -9,7 +9,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["web/NSE.WebApp.MVC/NSE.WebApp.MVC.csproj", "web/NSE.WebApp.MVC/"]
+COPY [".", "web/NSE.WebApp.MVC/"]
 RUN dotnet restore "./web/NSE.WebApp.MVC/NSE.WebApp.MVC.csproj"
 COPY . .
 WORKDIR "/src/web/NSE.WebApp.MVC"
