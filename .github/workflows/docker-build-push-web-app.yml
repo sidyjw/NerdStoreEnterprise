@@ -1,0 +1,57 @@
+name: Construir e Publicar Imagem Docker
+
+on:
+  push:
+    branches: [ "master", "hml" ]
+  pull_request:
+    branches: [ "master", "hml" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/nse-webapp-mvc
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout do repositório
+      uses: actions/checkout@v3
+
+    - name: Definir ambiente
+      id: set-env
+      run: |
+        if [[ ${{ github.ref }} == 'refs/heads/master' ]]; then
+          echo "ENV=prod" >> $GITHUB_OUTPUT
+        else
+          echo "ENV=hml" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Login no GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extrair metadados para Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=sha,prefix=${{ steps.set-env.outputs.ENV }}-
+          type=raw,value=${{ steps.set-env.outputs.ENV }}
+
+    - name: Construir e publicar imagem Docker
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./web/NSE.WebApp.MVC/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
