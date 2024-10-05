@@ -1,0 +1,37 @@
+name: Construir Imagem Docker para PR
+
+on:
+  pull_request:
+    branches: [ "master", "hml" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/nse-webapp-mvc
+
+jobs:
+  build-pr-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout do repositório
+      uses: actions/checkout@v3
+
+    - name: Configurar Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Extrair metadados para Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=pr
+          type=sha,prefix=pr-
+
+    - name: Construir imagem Docker (sem publicar)
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./web/NSE.WebApp.MVC/Dockerfile
+        push: false
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}

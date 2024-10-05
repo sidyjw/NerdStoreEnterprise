@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "master", "hml" ]
   pull_request:
-    branches: [ "master", "hml" ]
+    types: [closed]
 
 env:
   REGISTRY: ghcr.io
@@ -12,6 +12,7 @@ env:
 
 jobs:
   build-and-push:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,9 +44,8 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
-          type=ref,event=branch
+          type=raw,value=${{ steps.set-env.outputs.ENV }}-latest
           type=sha,prefix=${{ steps.set-env.outputs.ENV }}-
-          type=raw,value=${{ steps.set-env.outputs.ENV }}
 
     - name: Construir e publicar imagem Docker
       uses: docker/build-push-action@v4
